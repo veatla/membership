@@ -1,0 +1,27 @@
+{
+  "name": "server",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/express-session": "^1.18.1",
+    "@types/helmet": "^0.0.48",
+    "@types/node": "^22.13.4",
+    "@types/pg": "^8.11.11"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.27",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "helmet": "^8.0.0",
+    "kysely": "^0.27.5",
+    "nanoid": "^5.1.0",
+    "pg": "^8.13.3"
+  }
+}
