@@ -1,8 +1,8 @@
 import { Type, type Static } from "@sinclair/typebox";
 
-export const BaseUserSchema = {
+export const BasePostSchema = {
     id: Type.String({
-        title: "User id",
+        title: "Post id",
         maxLength: 34,
     }),
 
@@ -28,7 +28,7 @@ export const BaseUserSchema = {
         maxLength: 30,
     }),
 
-    username: Type.String({
+    Postname: Type.String({
         title: "Password",
         minLength: 3,
         maxLength: 32,
@@ -37,12 +37,6 @@ export const BaseUserSchema = {
     email: Type.String({
         title: "Email",
         format: "email",
-        minLength: 6,
-        maxLength: 32,
-    }),
-
-    stripe_customer_id: Type.String({
-        title: "Stripe Customer ID",
         minLength: 6,
         maxLength: 32,
     }),
@@ -57,17 +51,17 @@ export const BaseUserSchema = {
     ),
 };
 
-export const CreateUserSchema = Type.Object({
-    email: BaseUserSchema.email,
-    password: BaseUserSchema.password,
-    birthday: Type.Optional(BaseUserSchema.birthday),
-    username: Type.Optional(BaseUserSchema.username),
+export const CreatePostSchema = Type.Object({
+    email: BasePostSchema.email,
+    password: BasePostSchema.password,
+    birthday: Type.Optional(BasePostSchema.birthday),
+    Postname: Type.Optional(BasePostSchema.Postname),
 });
-export type CreateUser = Static<typeof CreateUserSchema>;
+export type CreatePost = Static<typeof CreatePostSchema>;
 
 export const LoginSchema = Type.Object({
-    email: BaseUserSchema.email,
-    password: BaseUserSchema.password,
+    email: BasePostSchema.email,
+    password: BasePostSchema.password,
 });
 
 export type Login = Static<typeof LoginSchema>;

@@ -7,6 +7,14 @@ const ENV = {
     PG_DATABASE: process.env.PG_DATABASE!,
     
     JWT_SECRET: process.env.JWT_SECRET!,
+    
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY!,
+    STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY!,
+
+    STORAGE_URL: process.env.STORAGE_URL!,
+    STORAGE_ACCESS_ID: process.env.STORAGE_ACCESS_ID!,
+    STORAGE_ACCESS_KEY: process.env.STORAGE_ACCESS_KEY!,
+    STORAGE_BUCKET_NAME: process.env.STORAGE_BUCKET_NAME!,
 };
 
 if (isNaN(ENV.PORT) || isNaN(ENV.PG_PORT)) process.exit(1);

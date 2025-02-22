@@ -1,7 +1,6 @@
 import type { Kysely } from "kysely";
 import type { Database } from "../../../shared/types/database";
 import { createIndex } from "../../../shared/lib/kysely";
-import type { UserAccess } from "../../../shared/constants/access";
 
 export interface UsersTable {
     id: string;
@@ -34,6 +33,11 @@ export interface UsersTable {
      * Required for NSFW contents
      */
     birthday: number | null;
+    
+    /**
+     * Stripe Customer id for payments & subscriptions
+     */
+    stripe_customer_id: string | null;
 
     /**
      * Users state
@@ -68,6 +72,7 @@ export const usersTable = {
             .addColumn("username", "text", (cb) => cb.unique())
             .addColumn("email", "text", (cb) => cb.unique().notNull())
             .addColumn("phone", "text", (cb) => cb.unique())
+            .addColumn("stripe_customer_id", "text", (cb) => cb.unique())
             .addColumn("state", "smallint", (cb) => cb.notNull())
             .addColumn("birthday", "integer")
             .execute();

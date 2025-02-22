@@ -10,10 +10,8 @@ export enum UserAccess {
 
     CAN_COMMENT = 0x0006,
     CAN_MESSAGE = 0x0007,
-
-    MODERATOR = 0x0008,
-    ADMINISTRATOR = 0x0009,
 };
+
 
 export enum UserState {
     PUBLIC = 0x0001,

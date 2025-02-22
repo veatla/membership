@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@sinclair/typebox": "^0.34.27",
+    "@supabase/storage-js": "^2.7.1",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.21.2",
@@ -26,6 +27,7 @@
     "jsonwebtoken": "^9.0.2",
     "kysely": "^0.27.5",
     "nanoid": "^5.1.0",
-    "pg": "^8.13.3"
+    "pg": "^8.13.3",
+    "stripe": "^17.6.0"
   }
 }
