@@ -1,6 +1,7 @@
 import type { Kysely } from "kysely";
 import type { Database } from "../../../shared/types/database";
 import { createIndex } from "../../../shared/lib/kysely";
+import type { UserAccess } from "../../../shared/constants/access";
 
 export interface UsersTable {
     id: string;
@@ -33,6 +34,28 @@ export interface UsersTable {
      * Required for NSFW contents
      */
     birthday: number | null;
+
+    /**
+     * Users state
+     * ```
+     * const state = UserState.PUBLIC | UserState.VERIFIED;
+     * const is_public = state & UserState.PUBLIC;
+     * ```
+     */
+    state: number;
+}
+
+export interface UsersRelationships {
+    id: number;
+    user_id: string;
+    related_id: string;
+    /**
+     * ```
+     * const state = UserAccess.PUBLIC | UserAccess.VERIFIED;
+     * const is_public = state & UserAccess.PUBLIC;
+     * ```
+     */
+    state: number;
 }
 
 export const usersTable = {
@@ -45,6 +68,7 @@ export const usersTable = {
             .addColumn("username", "text", (cb) => cb.unique())
             .addColumn("email", "text", (cb) => cb.unique().notNull())
             .addColumn("phone", "text", (cb) => cb.unique())
+            .addColumn("state", "smallint", (cb) => cb.notNull())
             .addColumn("birthday", "integer")
             .execute();
 
@@ -70,8 +94,37 @@ export const usersTable = {
                 },
             ],
         });
+
+        await db.schema
+            .createTable("user_relationships")
+            .ifNotExists()
+            .addColumn("id", "serial", (cb) => cb.primaryKey())
+            .addColumn("user_id", "text", (cb) =>
+                cb.unique().references("users.is")
+            )
+            .addColumn("related_id", "text", (cb) =>
+                cb.unique().references("users.is")
+            )
+            .addColumn("state", "smallint", (cb) => cb.notNull())
+            .execute();
+
+        await createIndex({
+            db,
+            table: "user_relationships",
+            indexes: [
+                {
+                    using: "btree",
+                    cols: ["state", "related_id", "user_id"],
+                },
+                {
+                    using: "btree",
+                    cols: ["user_id", "related_id"],
+                },
+            ],
+        });
     },
     down: async (db: Kysely<Database>) => {
+        await db.schema.dropTable("user_relationships").cascade().execute();
         await db.schema.dropTable("users").cascade().execute();
     },
 };

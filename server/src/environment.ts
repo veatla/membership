@@ -5,6 +5,8 @@ const ENV = {
     PG_USER: process.env.PG_USER!,
     PG_PASSWORD: process.env.PG_PASSWORD!,
     PG_DATABASE: process.env.PG_DATABASE!,
+    
+    JWT_SECRET: process.env.JWT_SECRET!,
 };
 
 if (isNaN(ENV.PORT) || isNaN(ENV.PG_PORT)) process.exit(1);

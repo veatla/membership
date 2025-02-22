@@ -3,7 +3,7 @@ import ENV from "../environment";
 import { Kysely, PostgresDialect } from "kysely";
 import type { Database } from "../shared/types/database";
 
-const pool = new Pool({
+export const pool = new Pool({
     host: ENV.PG_HOST,
     port: ENV.PG_PORT,
     password: ENV.PG_PASSWORD,

@@ -3,7 +3,7 @@ import { Type, type Static } from "@sinclair/typebox";
 export const BaseUserSchema = {
     id: Type.String({
         title: "User id",
-        maxLength: 32,
+        maxLength: 34,
     }),
 
     first_name: Type.String({
@@ -24,13 +24,13 @@ export const BaseUserSchema = {
 
     birthday: Type.Number({
         title: "Birthday",
-        minLength: 6,
-        maxLength: 32,
+        minLength: 10,
+        maxLength: 30,
     }),
 
     username: Type.String({
         title: "Password",
-        minLength: 6,
+        minLength: 3,
         maxLength: 32,
     }),
 
@@ -54,8 +54,8 @@ export const BaseUserSchema = {
 export const CreateUserSchema = Type.Object({
     email: BaseUserSchema.email,
     password: BaseUserSchema.password,
-    birthday: BaseUserSchema.birthday,
-    username: BaseUserSchema.username,
+    birthday: Type.Optional(BaseUserSchema.birthday),
+    username: Type.Optional(BaseUserSchema.username),
 });
 export type CreateUser = Static<typeof CreateUserSchema>;
 
