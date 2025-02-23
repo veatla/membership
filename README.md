@@ -22,7 +22,7 @@ STRIPE_SECRET_KEY=stripeSecretKey - Used to create subscriptions & customers
 SUPABASE_STORAGE_URL=https://[project_id].supabase.co/storage/v1
 STORAGE_ACCESS_ID=SUPABASE_S3_ACCESS_ID
 STORAGE_SECRET_KEY=SUPABASE_S3_SECRET_KEY
-STORAGE_BUCKET_NAME=attachments
+STORAGE_BUCKET_NAME=attachments_bucket_name
 
 ```
 
@@ -36,7 +36,7 @@ TODO:
 -   Backend: Upload Files = Ok
 -   Backend: Use Worker Thread To Upload Files = Ok
 -   Backend: Format Files. ex.: Create low quality thumbnails for images & videos = Backlog
--   Backend: Enable upload Execeutable apps. Check for viruses - Backlog...Idk I need this or not.
+-   Backend: Enable upload Executable apps. Check for viruses - Backlog...Idk I need this or not.
 -   Backend: View posts = Ok
 -   Backend: Access Management = Todo
 -   Backend: Create custom subscriptions plans = Todo
