@@ -7,13 +7,14 @@ import { storageClient } from "../../../config/storage";
 import db from "../../../config/db";
 import { fileURLToPath } from "url";
 import uid from "../../../shared/lib/uid";
+import path from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 
 /**
  * @param {{
  *     files: Array<Express.Multer.File>;
- *     user: import("../../user/schema/user.schema").UsersTable
+ *     user: string
  * }} files
  * @returns {import("../types/worker").WorkerUploadResponse}
  */
@@ -23,10 +24,11 @@ const upload_file = async ({ files, user }) => {
 
     // Need to do this with worker threads to prevent blocking the main thread
     for await (const file of files) {
-        const filename = `${uid("ATTACHMENT_ITEM")}${file.originalname}`.replaceAll(" ", "-");
-        const path = `${file.mimetype}/${filename}`;
+        const extension = path.extname(file.originalname);
+        const filename = `${uid("ATTACHMENT_ITEM")}${extension}`;
+        const file_path = `${file.mimetype}/${filename}`;
         try {
-            const response = await storageClient.from("attachments").upload(path, file.buffer);
+            const response = await storageClient.from("attachments").upload(file_path, file.buffer);
 
             if (response.error) {
                 error.push(response.error.message);
@@ -37,10 +39,10 @@ const upload_file = async ({ files, user }) => {
                 .insertInto("attachments")
                 .values({
                     id: uid("ATTACHMENT"),
-                    filename: filename,
+                    filename: file.originalname,
                     mimetype: file.mimetype,
                     path: response.data.path,
-                    user_id: user.id,
+                    user_id: user,
                 })
                 .returningAll()
                 .executeTakeFirstOrThrow();
@@ -57,7 +59,7 @@ const upload_file = async ({ files, user }) => {
 /**
  *
  * @param {Array<Express.Multer.File>} files
- * @param {import("../../user/schema/user.schema").UsersTable} user
+ * @param {string} user
  * @returns {Promise<import("../types/worker").WorkerUploadResponse>}
  */
 export function create_upload_file_worker(files, user) {

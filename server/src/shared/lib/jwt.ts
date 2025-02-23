@@ -47,9 +47,9 @@ export const Bearer = {
             const generated = Bearer.sign({
                 user_id: user.id,
             });
-
+            const { password, ...rest } = user;
             return {
-                user,
+                user: rest,
                 token: generated,
             };
         }

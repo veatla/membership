@@ -8,14 +8,27 @@ import bcrypt from "bcrypt";
 import type { CreateUser, Login } from "./dto/user.dto";
 import type { UsersTable } from "./schema/user.schema";
 import stripe from "../../config/stripe";
+import { customAlphabet } from "nanoid";
 
 const salt = 12;
 
+const username_suffix = customAlphabet("123456789._", 24);
+const create_username = (username = "", email: string) => {
+    if (username.length > 3) return username;
+
+    const suffix = username_suffix();
+    const length = Math.floor(Math.random() * 3) + 1;
+    const sliced = "_".padStart(length, suffix);
+
+    return email.replace(/@(\S+)$/, sliced);
+};
 export const createUser = async (body: CreateUser) => {
     const is_exists = await db
         .selectFrom("users")
-        .where("email", "=", body.email)
-        .$if(Boolean(body.username), (cb) => cb.where((cb) => cb("username", "=", body.username!)))
+        .$if(Boolean(body.username), (cb) =>
+            cb.where((cb) => cb.or([cb("username", "=", body.username!), cb("email", "=", body.email)]))
+        )
+        .$if(!body.username, (cb) => cb.where("email", "=", body.email))
         .selectAll()
         .executeTakeFirst();
 
@@ -32,7 +45,7 @@ export const createUser = async (body: CreateUser) => {
             id: uid("USER"),
             email: body.email,
             password: hashed_password,
-            username: body.username,
+            username: create_username(body.username, body.email),
             birthday: body.birthday,
             display_name: null,
             phone: null,
@@ -46,7 +59,8 @@ export const createUser = async (body: CreateUser) => {
 
     const token = Bearer.sign({ user_id: user.id });
 
-    return { token, user };
+    const { password, ...rest } = user;
+    return { token, user: rest };
 };
 
 export const loginUser = async (body: Login) => {
@@ -54,13 +68,14 @@ export const loginUser = async (body: Login) => {
 
     if (!user) throw_err("Password or emails is incorrect", 400);
 
-    const password = await bcrypt.compare(body.password, user.password);
+    const { password, ...rest } = user;
+    const is_equal = await bcrypt.compare(body.password, password);
 
-    if (!password) throw_err("Password or emails is incorrect", 400);
+    if (!is_equal) throw_err("Password or emails is incorrect", 400);
 
     const token = Bearer.sign({ user_id: user.id });
 
-    return { token, user };
+    return { token, user: rest };
 };
 
 export const getUser = async (user_id: string, profile: string) => {
@@ -83,7 +98,7 @@ export const getUser = async (user_id: string, profile: string) => {
 
             (cb) => cb.onTrue()
         )
-        .selectAll("u")
+        .select(["u.id", "u.display_name", "u.username", "u.phone", "u.email", "u.state"])
         .select("ur.state")
         .executeTakeFirst();
 

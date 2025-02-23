@@ -21,6 +21,6 @@ const nanoid = customAlphabet(alphabet, 36);
  * @param {keyof typeof prefix} type 
  * @returns 
  */
-const uid = (type) => `${prefix[type]}_${nanoid()}`;
+const uid = (type) => `${prefix[type]}:${nanoid()}`;
 
 export default uid;

@@ -5,7 +5,7 @@ import type { UsersTable } from "../components/user/schema/user.schema";
 import APIError, { throw_err } from "../shared/lib/error";
 import { Bearer } from "../shared/lib/jwt";
 
-const parseSchema = <T extends TSchema>(schema: T, options?: SchemaOptions) => {
+export const verifySchemaData = <T extends TSchema>(schema: T, options?: SchemaOptions) => {
     return Value.Parse<T>(schema, options);
 };
 
@@ -109,16 +109,16 @@ const handler: ReqHandler = function (cb: any, params: any) {
                 if (!user) throw_err("Unauthorized!", 401);
             }
             const response = await cb({
-                body: params?.body ? parseSchema(params.body, req.body) : null,
-                query: params?.query ? parseSchema(params.query, req.query) : null,
+                body: params?.body ? verifySchemaData(params.body, req.body) : null,
+                query: params?.query ? verifySchemaData(params.query, req.query) : null,
 
-                params: params?.params ? parseSchema(params.params, req.params) : null,
+                params: params?.params ? verifySchemaData(params.params, req.params) : null,
                 status: (status: number) => {
                     status;
                 },
                 user: user,
             });
-            if (params?.response) res.send(parseSchema(params.response, response));
+            if (params?.response) res.send(verifySchemaData(params.response, response));
             else res.send(response);
         } catch (err) {
             console.log(err)

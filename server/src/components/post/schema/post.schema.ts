@@ -47,7 +47,7 @@ export const postsTable = {
             .ifNotExists()
             .addColumn("id", "text", (cb) => cb.primaryKey().notNull())
             .addColumn("content", "text", (cb) => cb.defaultTo("''"))
-            .addColumn("author", "text", (cb) => cb.unique())
+            .addColumn("author", "text", (cb) => cb.references('users.id'))
             .addColumn("keywords", "text")
             .addColumn("ts", "integer", (cb) => cb.notNull())
             .execute();

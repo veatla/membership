@@ -20,7 +20,12 @@ const dialect = new PostgresDialect({
 /** @type {Kysely<import("../shared/types/database").Database>} */
 const db = new Kysely({
     dialect: dialect,
-    log: ['query', 'error']
+    log(event) {
+        if (event.level === 'error') {
+          console.log(event.query.sql)
+          console.log(event.query.parameters)
+        }
+      }
 });
 
 export default db;
