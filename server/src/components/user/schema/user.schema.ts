@@ -50,10 +50,12 @@ export interface UsersTable {
 }
 
 export type Profile = Omit<UsersTable, "password">;
+
 export interface UsersRelationships {
     id: number;
     user_id: string;
     related_id: string;
+
     /**
      * ```
      * const state = UserAccess.PUBLIC | UserAccess.VERIFIED;
@@ -85,7 +87,7 @@ export const usersTable = {
             indexes: [
                 {
                     using: "btree",
-                    cols: ["username", "email", "phone"], 
+                    cols: ["email", "phone"], 
                 },
                 {
                     using: "btree",

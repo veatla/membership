@@ -3,7 +3,7 @@ import { Type, type Static } from "@sinclair/typebox";
 export const BaseUserSchema = {
     id: Type.String({
         title: "User id",
-        maxLength: 34,
+        maxLength: 50,
     }),
 
     first_name: Type.String({

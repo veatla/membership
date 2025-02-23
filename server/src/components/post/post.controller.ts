@@ -1,11 +1,12 @@
 import { Router } from "express";
 import handler, { verifySchemaData } from "../../middleware/handler";
 import { CreatePostSchema } from "./dto/post.dto";
-import { createPost } from "./post.service";
+import { createPost, getUserPosts } from "./post.service";
 import multerConfig from "../../config/multer";
 import { throw_err } from "../../shared/lib/error";
 import { Bearer } from "../../shared/lib/jwt";
 import { create_upload_file_worker } from "../attachment/workers/upload";
+import { GetUserByIdSchema } from "../user/dto/user.dto";
 
 const posts_router = Router();
 const route_prefix = (path: string) => "/post" + path;
@@ -28,21 +29,22 @@ posts_router.post(route_prefix("/create"), multerConfig.array("files", 5), async
 
         res.send(data);
     } catch (err) {
-        console.log(`Error`, err)
+        console.log(`Error`, err);
         next(err);
     }
 });
 
 posts_router.get(
     route_prefix("/id/:id"),
-    handler(({ body }) => null, {
+    handler(({ user, params }) => getUserPosts(params.id, user.id), {
         authRequired: true,
+        params: GetUserByIdSchema,
     })
 );
 
 posts_router.get(
-    route_prefix("/me"),
-    handler(({ body }) => null, {
+    route_prefix("/my"),
+    handler(({ user }) => getUserPosts(user.id, user.id), {
         authRequired: true,
     })
 );
