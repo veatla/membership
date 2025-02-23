@@ -12,6 +12,7 @@ export const BasePostSchema = {
     }),
 };
 
+
 export const CreatePostSchema = Type.Object({
     content: BasePostSchema.content,
     files: Type.Optional(Type.Array(Type.String())),
