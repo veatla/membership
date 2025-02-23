@@ -1,6 +1,6 @@
 import { sql } from "kysely";
 import db from "../../config/db";
-import { UserState } from "../../shared/constants/access";
+import { UserState } from "../../constants/access";
 import { throw_err } from "../../shared/lib/error";
 import { Bearer } from "../../shared/lib/jwt";
 import uid from "../../shared/lib/uid";

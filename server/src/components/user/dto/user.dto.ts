@@ -72,4 +72,8 @@ export const LoginSchema = Type.Object({
     password: BaseUserSchema.password,
 });
 
+export const GetUserByIdSchema = Type.Object({
+    id: BaseUserSchema.id,
+});
+
 export type Login = Static<typeof LoginSchema>;

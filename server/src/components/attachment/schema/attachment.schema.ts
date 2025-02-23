@@ -64,16 +64,12 @@ export const attachmentTable = {
             indexes: [
                 {
                     using: "btree",
-                    cols: ["mimetype"],
+                    cols: ["mimetype", "filename"], 
                 },
                 {
                     using: "btree",
-                    cols: ["mimetype", "filename"],
-                },
-                {
-                    using: "btree",
-                    cols: ["filename"],
-                },
+                    cols: ["filename"], 
+                }
             ],
         });
 
@@ -95,16 +91,12 @@ export const attachmentTable = {
             indexes: [
                 {
                     using: "btree",
-                    cols: ["attachment_id"],
+                    cols: ["attachment_id", "post_id"], 
                 },
                 {
                     using: "btree",
-                    cols: ["attachment_id", "post_id"],
-                },
-                {
-                    using: "btree",
-                    cols: ["post_id"],
-                },
+                    cols: ["post_id"], 
+                }
             ],
         });
     },

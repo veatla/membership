@@ -1,7 +1,7 @@
 import { Router } from "express";
 import handler from "../../middleware/handler";
 import { createUser, getUser, loginUser } from "./user.service";
-import { CreateUserSchema, LoginSchema } from "./dto/user.dto";
+import { CreateUserSchema, GetUserByIdSchema, LoginSchema } from "./dto/user.dto";
 
 const users_router = Router();
 const route_prefix = (path: string) => "/user" + path;
@@ -23,7 +23,7 @@ users_router.post(
 users_router.get(
     route_prefix("/id/:id"),
     handler(({ params, user }) => getUser(params.id, user.id), {
-        params: LoginSchema,
+        params: GetUserByIdSchema,
         authRequired: true,
     })
 );
@@ -35,11 +35,5 @@ users_router.get(
     })
 );
 
-users_router.get(
-    route_prefix("/"),
-    handler(({ user }) => user, {
-        authRequired: true,
-    })
-);
 
 export default users_router;

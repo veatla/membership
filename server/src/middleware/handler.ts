@@ -1,7 +1,7 @@
 import { TypeBoxError, type TSchema, type Static, type SchemaOptions } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
-import type { RequestHandler as ExpressRequestHandler, Request, Response } from "express";
-import type { UsersTable } from "../components/user/schema/user.schema";
+import type { Request, Response } from "express";
+import type { Profile, UsersTable } from "../components/user/schema/user.schema";
 import APIError, { throw_err } from "../shared/lib/error";
 import { Bearer } from "../shared/lib/jwt";
 
@@ -9,124 +9,116 @@ export const verifySchemaData = <T extends TSchema>(schema: T, options?: SchemaO
     return Value.Parse<T>(schema, options);
 };
 
+function parseSchema<Type extends TSchema | undefined>(
+    schema: Type,
+    data: unknown
+): IfIsExists<Exclude<Type, undefined>> {
+    if (!schema || !data) return <IfIsExists<Exclude<Type, undefined>>>undefined;
+    return <IfIsExists<Exclude<Type, undefined>>>verifySchemaData(schema, data);
+}
+
 type IfIsExists<Schema extends TSchema | undefined> = Schema extends TSchema ? Static<Schema> : undefined;
 
 export interface RequestHandler<
     Body extends TSchema | undefined,
     Query extends TSchema | undefined,
-    User extends UsersTable | undefined
+    Params extends TSchema | undefined,
+    User extends Profile | undefined
 > {
     (args: {
+        /** Parsed Body Schema Value */
         body: IfIsExists<Body>;
+
+        /** Parsed Query Schema Value */
         query: IfIsExists<Query>;
+
+        /** Returns `User` if set in `authRequired` in `params` */
         user: User;
-        params: Record<string, string>;
+
+        /** Parsed Route Params Schema Value  */
+        params: IfIsExists<Params>;
+
+        /** Function to set status code */
         status: (status: number) => void;
     }): any | Promise<any>;
 }
 
-interface ReqHandler {
-    // // BODY NOT EXISTS
-    // <Body extends unknown, Query extends unknown>(
-    //     handler: RequestHandler<unknown, Query>,
-    //     params?: {
-    //         body?: unknown;
-    //         query?: Query;
-    //         response?: TSchema;
-    //     }
-    // ): ExpressRequestHandler;
+const handler = function <
+    Body extends TSchema,
+    Query extends TSchema,
+    Params extends TSchema,
+    UserAuthRequired extends boolean = false
+>(
+    cb: RequestHandler<Body, Query, Params, UserAuthRequired extends true ? UsersTable : undefined>,
+    options: {
+        /** Body Schema */
+        body?: Body;
 
-    // // QUERY NOT EXISTS
-    // <Body extends TSchema, Query extends unknown>(
-    //     handler: RequestHandler<Body, unknown>,
-    //     params: {
-    //         body: Body;
-    //         query?: unknown;
-    //         response?: TSchema;
-    //     }
-    // ): ExpressRequestHandler;
+        /** Query Schema */
+        query?: Query;
 
-    // // RESPONSE NOT EXISTS
-    // <Body extends TSchema, Query extends TSchema>(
-    //     handler: RequestHandler<Body, Query>,
-    //     params: {
-    //         body: Body;
-    //         query: Query;
-    //         response?: TSchema;
-    //     }
-    // ): ExpressRequestHandler;
+        /** Params Schema */
+        params?: Params;
 
-    // // ONLY BODY EXISTS
-    // <Body extends TSchema, Query extends unknown>(
-    //     handler: RequestHandler<Body, unknown>,
-    //     params: {
-    //         body: Body;
-    //         query?: Query;
-    //         response?: TSchema;
-    //     }
-    // ): ExpressRequestHandler;
+        /** Response Schema */
+        response?: TSchema;
 
-    // // ONLY QUERY EXISTS
-    // <Body extends unknown, Query extends TSchema>(
-    //     handler: RequestHandler<Body, Query>,
-    //     params: {
-    //         body?: Body;
-    //         query: Query;
-    //         response?: TSchema;
-    //     }
-    // ): ExpressRequestHandler;
-
-    // // ONLY RESPONSE EXISTS
-    // <Body extends unknown, Query extends unknown>(
-    //     handler: RequestHandler<Body, Query>,
-    //     params: {
-    //         body?: Body;
-    //         query?: Query;
-    //         response?: TSchema;
-    //     }
-    // ): ExpressRequestHandler;
-
-    <Body extends TSchema, Query extends TSchema, UserAuthRequired extends boolean = false>(
-        handler: RequestHandler<Body, Query, UserAuthRequired extends true ? UsersTable : undefined>,
-        params: {
-            body?: Body;
-            query?: Query;
-            params?: Request["params"];
-            response?: TSchema;
-            authRequired?: UserAuthRequired;
-        }
-    ): ExpressRequestHandler;
-}
-
-const handler: ReqHandler = function (cb: any, params: any) {
+        /** Whenever route is requires  */
+        authRequired?: UserAuthRequired;
+    }
+) {
+    const {
+        authRequired = false,
+        body: bodySchema,
+        query: querySchema,
+        params: paramsSchema,
+        response: responseSchema,
+    } = options;
     return async (req: Request, res: Response) => {
         try {
-            const parsed_token = await Bearer.verify(req.headers["authorization"], "user").catch(() => undefined);
-            const user = parsed_token?.user;
+            // Parse Bearer token provided in request header
+            const parsed_token = await Bearer.verify(req.headers["authorization"], "user").catch(() => null);
+
+            // Update users token after successfully check
             if (parsed_token?.token) res.cookie("u_token", parsed_token.token);
 
-            if ("authRequired" in params) {
-                if (!user) throw_err("Unauthorized!", 401);
-            }
-            const response = await cb({
-                body: params?.body ? verifySchemaData(params.body, req.body) : null,
-                query: params?.query ? verifySchemaData(params.query, req.query) : null,
+            // If Route requires user authorization
+            const user = parsed_token?.user;
+            if (authRequired && !user) throw_err("Unauthorized!", 401);
 
-                params: params?.params ? verifySchemaData(params.params, req.params) : null,
-                status: (status: number) => {
-                    status;
+            // Response status
+            let status = 200;
+
+            const response = await cb({
+                body: parseSchema(bodySchema, req.body),
+                query: parseSchema(querySchema, req.query),
+                params: parseSchema(paramsSchema, req.params),
+                status: (set: number) => {
+                    status = set;
                 },
-                user: user,
+                user: user as UserAuthRequired extends true ? UsersTable : undefined,
             });
-            if (params?.response) res.send(verifySchemaData(params.response, response));
+
+            res.status(status);
+
+            // If response schema type in the options - parse callback value
+            if (responseSchema) res.send(verifySchemaData(responseSchema, response));
+            // Otherwise just return
             else res.send(response);
         } catch (err) {
-            console.log(err)
+            // Verification errors
             if (err instanceof TypeBoxError) {
                 res.send(err);
-            } else if (err instanceof APIError) {
+            }
+            // Custom API errors
+            else if (err instanceof APIError) {
                 res.status(err.status).send({ error: err });
-            } else res.send({ error: err });
+            }
+            // Other errors that doesn't handled
+            else {
+                console.log(err);
+                res.status(500).send({ error: "Internal Server Error!" });
+            }
         }
     };
 };

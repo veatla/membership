@@ -38,12 +38,7 @@ export const createPost = async (body: CreatePost, user: string) => {
                 .selectFrom("attachments")
                 .where("attachments.id", "=", sql<string>`ANY(${body.files!}::TEXT[])`)
                 .select((cb) => [
-                    cb
-                        .fn("CONCAT", [
-                            sql<string>`${url_prefix}::TEXT`,
-                            "attachments.path",
-                        ])
-                        .as("url"),
+                    cb.fn("CONCAT", [sql<string>`${url_prefix}::TEXT`, "attachments.path"]).as("url"),
                     "attachments.id",
                     "attachments.mimetype",
                 ])
@@ -59,4 +54,16 @@ export const createPost = async (body: CreatePost, user: string) => {
     });
 
     return data;
+};
+
+export const getUserPosts = async (author: string, user: string) => {
+    const is_me = author === user;
+
+    return await db.transaction().execute(async (trx) => {
+        return trx
+            .selectFrom("posts as p")
+            .selectAll("p")
+            .innerJoinLateral("post_accesses as pa", "p.author", "pa.user_id")
+            .execute();
+    });
 };

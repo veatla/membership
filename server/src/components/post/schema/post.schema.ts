@@ -47,7 +47,7 @@ export const postsTable = {
             .ifNotExists()
             .addColumn("id", "text", (cb) => cb.primaryKey().notNull())
             .addColumn("content", "text", (cb) => cb.defaultTo("''"))
-            .addColumn("author", "text", (cb) => cb.references('users.id'))
+            .addColumn("author", "text", (cb) => cb.references("users.id"))
             .addColumn("keywords", "text")
             .addColumn("ts", "integer", (cb) => cb.notNull())
             .execute();
@@ -56,34 +56,12 @@ export const postsTable = {
             db,
             table: "posts",
             indexes: [
-                {
-                    using: "btree",
-                    cols: ["keywords", "content", "author", "ts"],
-                },
-                {
-                    using: "btree",
-                    cols: ["content", "author", "ts"],
-                },
-                {
-                    using: "btree",
-                    cols: ["content", "author"],
-                },
-                {
-                    using: "btree",
-                    cols: ["content", "keywords"],
-                },
-                {
-                    using: "btree",
-                    cols: ["keywords", "ts", "content"],
-                },
-                {
-                    using: "btree",
-                    cols: ["keywords", "ts"],
-                },
-                {
-                    using: "btree",
-                    cols: ["ts"],
-                },
+                // For searching by the keywords
+                { cols: ["keywords", "ts"], using: "btree" },
+                // For search content in some authors posts
+                { cols: ["content", "author"], using: "btree" },
+                // For sort by author & timestamp
+                { cols: ["author", "ts"], using: "btree" },
             ],
         });
 
@@ -94,26 +72,18 @@ export const postsTable = {
             .addColumn("user_id", "text", (cb) => cb.references("users.id"))
             .addColumn("post_id", "text", (cb) => cb.references("posts.id"))
             .execute();
-            
+
         await createIndex({
             db,
             table: "post_accesses",
             indexes: [
+                // For selecting post by user access;
                 {
                     using: "btree",
                     cols: ["post_id", "user_id"],
                 },
-                {
-                    using: "btree",
-                    cols: ["post_id"],
-                },
-                {
-                    using: "btree",
-                    cols: ["user_id"],
-                },
             ],
         });
-
     },
     down: async (db: Kysely<Database>) => {
         await db.schema.dropTable("posts").cascade().execute();

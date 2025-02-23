@@ -49,6 +49,7 @@ export interface UsersTable {
     state: number;
 }
 
+export type Profile = Omit<UsersTable, "password">;
 export interface UsersRelationships {
     id: number;
     user_id: string;
@@ -75,7 +76,7 @@ export const usersTable = {
             .addColumn("stripe_customer_id", "text", (cb) => cb.unique())
             .addColumn("state", "smallint", (cb) => cb.notNull())
             .addColumn("birthday", "integer")
-            .addColumn("password", "text", cb => cb.notNull())
+            .addColumn("password", "text", (cb) => cb.notNull())
             .execute();
 
         await createIndex({
@@ -84,19 +85,11 @@ export const usersTable = {
             indexes: [
                 {
                     using: "btree",
-                    cols: ["username", "email", "phone"],
+                    cols: ["username", "email", "phone"], 
                 },
                 {
                     using: "btree",
-                    cols: ["username", "display_name"],
-                },
-                {
-                    using: "btree",
-                    cols: ["username"],
-                },
-                {
-                    using: "btree",
-                    cols: ["email"],
+                    cols: ["username", "display_name"], 
                 },
             ],
         });
