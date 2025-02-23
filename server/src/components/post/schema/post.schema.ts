@@ -40,7 +40,7 @@ export interface PostAccesses {
     post_id: string;
 }
 
-export const PostsTable = {
+export const postsTable = {
     up: async (db: Kysely<Database>) => {
         await db.schema
             .createTable("posts")
@@ -87,7 +87,6 @@ export const PostsTable = {
             ],
         });
 
-        
         await db.schema
             .createTable("post_accesses")
             .ifNotExists()
@@ -95,6 +94,26 @@ export const PostsTable = {
             .addColumn("user_id", "text", (cb) => cb.references("users.id"))
             .addColumn("post_id", "text", (cb) => cb.references("posts.id"))
             .execute();
+            
+        await createIndex({
+            db,
+            table: "post_accesses",
+            indexes: [
+                {
+                    using: "btree",
+                    cols: ["post_id", "user_id"],
+                },
+                {
+                    using: "btree",
+                    cols: ["post_id"],
+                },
+                {
+                    using: "btree",
+                    cols: ["user_id"],
+                },
+            ],
+        });
+
     },
     down: async (db: Kysely<Database>) => {
         await db.schema.dropTable("posts").cascade().execute();

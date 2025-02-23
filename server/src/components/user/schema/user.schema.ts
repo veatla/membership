@@ -33,7 +33,7 @@ export interface UsersTable {
      * Required for NSFW contents
      */
     birthday: number | null;
-    
+
     /**
      * Stripe Customer id for payments & subscriptions
      */
@@ -75,6 +75,7 @@ export const usersTable = {
             .addColumn("stripe_customer_id", "text", (cb) => cb.unique())
             .addColumn("state", "smallint", (cb) => cb.notNull())
             .addColumn("birthday", "integer")
+            .addColumn("password", "text", cb => cb.notNull())
             .execute();
 
         await createIndex({
@@ -104,12 +105,8 @@ export const usersTable = {
             .createTable("user_relationships")
             .ifNotExists()
             .addColumn("id", "serial", (cb) => cb.primaryKey())
-            .addColumn("user_id", "text", (cb) =>
-                cb.unique().references("users.is")
-            )
-            .addColumn("related_id", "text", (cb) =>
-                cb.unique().references("users.is")
-            )
+            .addColumn("user_id", "text", (cb) => cb.unique().references("users.id"))
+            .addColumn("related_id", "text", (cb) => cb.unique().references("users.id"))
             .addColumn("state", "smallint", (cb) => cb.notNull())
             .execute();
 

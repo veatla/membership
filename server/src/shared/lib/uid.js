@@ -5,8 +5,10 @@ const prefix = {
     POST: "P",
     SUBSCRIPTION: "S",
     PAYMENT: "PM",
-    FOLLOW: "F",
-} as const;
+    ATTACHMENT: "F",
+    ATTACHMENT_ITEM: "FI",
+    ATTACHMENT_REFERENCE: "FR",
+};
 
 const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 // Speed: 1000 IDs per hour/second
@@ -14,6 +16,11 @@ const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 // in order to have a 1% probability of at least one collision.
 const nanoid = customAlphabet(alphabet, 36);
 
-const uid = (type: keyof typeof prefix) => `${prefix[type]}_${nanoid()}`;
+/**
+ * 
+ * @param {keyof typeof prefix} type 
+ * @returns 
+ */
+const uid = (type) => `${prefix[type]}_${nanoid()}`;
 
 export default uid;

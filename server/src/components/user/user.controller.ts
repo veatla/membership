@@ -3,24 +3,24 @@ import handler from "../../middleware/handler";
 import { createUser, getUser, loginUser } from "./user.service";
 import { CreateUserSchema, LoginSchema } from "./dto/user.dto";
 
-const router = Router();
+const users_router = Router();
 const route_prefix = (path: string) => "/user" + path;
 
-router.post(
+users_router.post(
     route_prefix("/register"),
     handler(({ body }) => createUser(body), {
         body: CreateUserSchema,
     })
 );
 
-router.post(
+users_router.post(
     route_prefix("/login"),
     handler(({ body }) => loginUser(body), {
         body: LoginSchema,
     })
 );
 
-router.get(
+users_router.get(
     route_prefix("/id/:id"),
     handler(({ params, user }) => getUser(params.id, user.id), {
         params: LoginSchema,
@@ -28,18 +28,18 @@ router.get(
     })
 );
 
-router.get(
+users_router.get(
     route_prefix("/me"),
     handler(({ user }) => user, {
         authRequired: true,
     })
 );
 
-router.get(
+users_router.get(
     route_prefix("/"),
     handler(({ user }) => user, {
         authRequired: true,
     })
 );
 
-export default router;
+export default users_router;

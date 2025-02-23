@@ -15,9 +15,7 @@ type FileBody =
     | string;
 
 export const get_urls = async (path: Array<string>) => {
-    const { data, error } = await storageClient
-        .from(ENV.STORAGE_BUCKET_NAME)
-        .createSignedUrls(path, 3600);
+    const { data, error } = await storageClient.from(ENV.STORAGE_BUCKET_NAME).createSignedUrls(path, 3600);
 
     if (error) {
         console.log(`Storage get file error ${path}`, error);
@@ -29,9 +27,7 @@ export const get_urls = async (path: Array<string>) => {
 };
 
 export const upload = async (path: string, file: FileBody) => {
-    const { data, error } = await storageClient
-        .from(ENV.STORAGE_BUCKET_NAME)
-        .upload(path, file);
+    const { data, error } = await storageClient.from(ENV.STORAGE_BUCKET_NAME).upload(path, file);
     if (error) {
         console.log(`Storage get file error ${path}`, error);
         // return error.message

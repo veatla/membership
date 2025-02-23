@@ -1,26 +1,15 @@
-import {
-    TypeBoxError,
-    type TSchema,
-    type Static,
-    type SchemaOptions,
-} from "@sinclair/typebox";
+import { TypeBoxError, type TSchema, type Static, type SchemaOptions } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
-import type {
-    RequestHandler as ExpressRequestHandler,
-    Request,
-    Response,
-} from "express";
+import type { RequestHandler as ExpressRequestHandler, Request, Response } from "express";
 import type { UsersTable } from "../components/user/schema/user.schema";
-import { throw_err } from "../shared/lib/error";
+import APIError, { throw_err } from "../shared/lib/error";
 import { Bearer } from "../shared/lib/jwt";
 
 const parseSchema = <T extends TSchema>(schema: T, options?: SchemaOptions) => {
     return Value.Parse<T>(schema, options);
 };
 
-type IfIsExists<Schema extends TSchema | undefined> = Schema extends TSchema
-    ? Static<Schema>
-    : undefined;
+type IfIsExists<Schema extends TSchema | undefined> = Schema extends TSchema ? Static<Schema> : undefined;
 
 export interface RequestHandler<
     Body extends TSchema | undefined,
@@ -97,16 +86,8 @@ interface ReqHandler {
     //     }
     // ): ExpressRequestHandler;
 
-    <
-        Body extends TSchema,
-        Query extends TSchema,
-        UserAuthRequired extends boolean = false
-    >(
-        handler: RequestHandler<
-            Body,
-            Query,
-            UserAuthRequired extends true ? UsersTable : undefined
-        >,
+    <Body extends TSchema, Query extends TSchema, UserAuthRequired extends boolean = false>(
+        handler: RequestHandler<Body, Query, UserAuthRequired extends true ? UsersTable : undefined>,
         params: {
             body?: Body;
             query?: Query;
@@ -120,37 +101,32 @@ interface ReqHandler {
 const handler: ReqHandler = function (cb: any, params: any) {
     return async (req: Request, res: Response) => {
         try {
-            const user = await Bearer.verify(
-                req.headers["authorization"],
-                "user"
-            ).catch(() => undefined);
-            res.locals["user"] = user?.user;
-            if (user?.token) res.cookie("u_token", user.token);
+            const parsed_token = await Bearer.verify(req.headers["authorization"], "user").catch(() => undefined);
+            const user = parsed_token?.user;
+            if (parsed_token?.token) res.cookie("u_token", parsed_token.token);
 
             if ("authRequired" in params) {
-                if (!res.locals) throw_err("Unauthorized!", 401);
+                if (!user) throw_err("Unauthorized!", 401);
             }
             const response = await cb({
                 body: params?.body ? parseSchema(params.body, req.body) : null,
-                query: params?.query
-                    ? parseSchema(params.query, req.query)
-                    : null,
+                query: params?.query ? parseSchema(params.query, req.query) : null,
 
-                params: params?.params
-                    ? parseSchema(params.params, req.params)
-                    : null,
+                params: params?.params ? parseSchema(params.params, req.params) : null,
                 status: (status: number) => {
                     status;
                 },
-                user: res.locals["user"]!,
+                user: user,
             });
-            if (params?.response)
-                res.send(parseSchema(params.response, response));
+            if (params?.response) res.send(parseSchema(params.response, response));
             else res.send(response);
         } catch (err) {
+            console.log(err)
             if (err instanceof TypeBoxError) {
-                res.send(err.message);
-            } else res.send(err);
+                res.send(err);
+            } else if (err instanceof APIError) {
+                res.status(err.status).send({ error: err });
+            } else res.send({ error: err });
         }
     };
 };

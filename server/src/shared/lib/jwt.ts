@@ -25,10 +25,7 @@ export const Bearer = {
         }
     },
 
-    verify: async (
-        bearer?: string,
-        type: "user" | (string & NonNullable<unknown>) = "user"
-    ) => {
+    verify: async (bearer?: string, type: "user" | (string & NonNullable<unknown>) = "user") => {
         if (!bearer) throw_err("Unauthorized!", 401);
         const [prefix, token] = bearer.split(" ");
         if (prefix !== "Bearer" || !token.length) {
@@ -48,7 +45,7 @@ export const Bearer = {
 
             // Update & generate new token for user
             const generated = Bearer.sign({
-                user_id: user.id
+                user_id: user.id,
             });
 
             return {

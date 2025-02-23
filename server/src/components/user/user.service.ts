@@ -15,17 +15,13 @@ export const createUser = async (body: CreateUser) => {
     const is_exists = await db
         .selectFrom("users")
         .where("email", "=", body.email)
-        .$if(Boolean(body.username), (cb) =>
-            cb.where((cb) => cb("username", "=", body.username!))
-        )
+        .$if(Boolean(body.username), (cb) => cb.where((cb) => cb("username", "=", body.username!)))
         .selectAll()
         .executeTakeFirst();
 
     if (is_exists) {
-        if (is_exists.email === body.email)
-            throw_err("User with this email already exists", 400);
-        if (is_exists.username === body.username)
-            throw_err("User with this username already exists", 400);
+        if (is_exists.email === body.email) throw_err("User with this email already exists", 400);
+        if (is_exists.username === body.username) throw_err("User with this username already exists", 400);
     }
 
     const hashed_password = await bcrypt.hash(body.password, salt);
@@ -54,11 +50,7 @@ export const createUser = async (body: CreateUser) => {
 };
 
 export const loginUser = async (body: Login) => {
-    const user = await db
-        .selectFrom("users")
-        .where("email", "=", body.email)
-        .selectAll()
-        .executeTakeFirst();
+    const user = await db.selectFrom("users").where("email", "=", body.email).selectAll().executeTakeFirst();
 
     if (!user) throw_err("Password or emails is incorrect", 400);
 
@@ -82,14 +74,8 @@ export const getUser = async (user_id: string, profile: string) => {
                     .selectFrom("user_relationships as ur_p")
                     .where((cb) =>
                         cb.or([
-                            cb.and([
-                                sql<boolean>`u.id = ur_p.user_id`,
-                                cb("ur_p.related_id", "=", profile),
-                            ]),
-                            cb.and([
-                                sql<boolean>`u.id = ur_p.related_id`,
-                                cb("ur_p.user_id", "=", profile),
-                            ]),
+                            cb.and([sql<boolean>`u.id = ur_p.user_id`, cb("ur_p.related_id", "=", profile)]),
+                            cb.and([sql<boolean>`u.id = ur_p.related_id`, cb("ur_p.user_id", "=", profile)]),
                         ])
                     )
                     .selectAll("ur_p")

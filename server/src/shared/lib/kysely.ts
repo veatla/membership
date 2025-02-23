@@ -14,6 +14,7 @@ export const createIndex = async <Key extends keyof Database>(params: {
     for await (const { cols, using } of indexes) {
         await db.schema
             .createIndex(`${table}_${cols.join("_")}_index`)
+            .ifNotExists()
             .on(table)
             .columns(cols.map((v) => String(v)))
             .using(using)
@@ -22,6 +23,8 @@ export const createIndex = async <Key extends keyof Database>(params: {
 };
 
 export const init_postgres_fn = async () => {
+    await pool.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto;`);
+    
     // Function to check bitwise
     await pool.query(
         `CREATE OR REPLACE FUNCTION CHECK_RIGHTS(flags int, bit_no int) RETURNS boolean as $$
@@ -31,12 +34,20 @@ export const init_postgres_fn = async () => {
             $$ LANGUAGE plpgsql;`
     );
 
+    // // Function to check bitwise
+    await pool.query(
+        `CREATE OR REPLACE FUNCTION CHECK_RIGHTS(flags int, bit_no int) RETURNS boolean as $$
+            BEGIN
+            return (flags >> bit_no) & 1 = 1;     
+            END;
+            $$ LANGUAGE plpgsql;`
+    );
 
     // Function to set flag
     await pool.query(
         `
         CREATE OR REPLACE FUNCTION SET_RIGHTS(flags int, switch int, value boolean) RETURNS smallint as $$
-            BEGINIF (((flags >> switch) & 1 = 1) = value)
+            BEGIN IF (((flags >> switch) & 1 = 1) = value)
             THEN
             return flags;
             END IF;IF (value)
