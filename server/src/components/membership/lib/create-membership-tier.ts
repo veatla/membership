@@ -6,8 +6,7 @@ import uid from "../../../shared/lib/uid";
 import { create_upload_file_worker } from "../../attachment/workers/upload";
 import { getUserProductId } from "../../user/lib/get-user-product-id";
 import type { Profile } from "../../user/schema/user.schema";
-import type { CreateMembership } from "../dto/membership-tiers.dto";
-
+import type { CreateMembership } from "../dto/membership.dto";
 
 const upload_image = async (cover: Express.Multer.File | undefined, user_id: string) => {
     if (!cover) return null;
@@ -24,9 +23,9 @@ export const createMembershipTiers = async (
 ) => {
     return db.transaction().execute(async (trx) => {
         const image = await upload_image(cover, author.id);
-        
+
         const product_id = await getUserProductId(author, trx);
-        
+
         const plan = await stripe.plans.create({
             currency: "USD",
             product: product_id,
@@ -46,7 +45,10 @@ export const createMembershipTiers = async (
                 ts: $time(),
                 cover: image,
             })
+            .returningAll()
             .executeTakeFirstOrThrow();
+
+        return membership;
     });
 };
 

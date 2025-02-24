@@ -15,7 +15,7 @@ const create_username = (username = "", email: string) => {
 
     const suffix = username_suffix();
     const length = Math.floor(Math.random() * 3) + 1;
-    const sliced = "_".padStart(length, suffix);
+    const sliced = "_".padEnd(length, suffix);
 
     return email.replace(/@(\S+)$/, sliced);
 };

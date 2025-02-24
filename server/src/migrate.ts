@@ -1,5 +1,5 @@
 import { attachmentTable } from "./components/attachment/schema/attachment.schema";
-import { membershipTierTable, memberSubscriptionsTable } from "./components/membership-tiers/schema/membership-tiers.schema";
+import { membershipTierTable, memberSubscriptionsTable } from "./components/membership/schema/membership.schema";
 import { postAccessesTable, postsTable } from "./components/post/schema/post.schema";
 import { usersTable } from "./components/user/schema/user.schema";
 import db from "./config/db";

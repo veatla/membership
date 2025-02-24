@@ -41,10 +41,12 @@ export interface MembershipTierTable {
 }
 
 export interface MemberSubscriptionsTable {
+    id: string;
+
     /**
      * Membership tier id
      */
-    member_id: string;
+    membership_tier_id: string;
 
     /**
      * Member's subscription id in stripe tier id
@@ -74,7 +76,7 @@ export const membershipTierTable = {
             .createTable("membership_tiers")
             .ifNotExists()
             .addColumn("id", "text", (cb) => cb.primaryKey().notNull())
-            .addColumn("stripe_subscription_id", "text", (cb) => cb.unique().notNull())
+            .addColumn("stripe_plan_id", "text", (cb) => cb.unique().notNull())
             .addColumn("name", "text", (cb) => cb.notNull())
             .addColumn("description", "text", (cb) => cb.notNull())
             .addColumn("author", "text", (cb) => cb.references("users.id"))
@@ -95,7 +97,7 @@ export const membershipTierTable = {
             .createTable("member_subscriptions")
             .ifNotExists()
             .addColumn("id", "text", (cb) => cb.primaryKey().notNull())
-            .addColumn("member_id", "text", (cb) => cb.unique().notNull())
+            .addColumn("membership_tier_id", "text", (cb) => cb.unique().notNull())
             .addColumn("stripe_subscription_id", "text", (cb) => cb.notNull())
             .addColumn("user_id", "text", (cb) => cb.references("users.id").notNull())
             .addColumn("author_id", "text", (cb) => cb.references("users.id").notNull())
@@ -107,7 +109,7 @@ export const membershipTierTable = {
             table: "member_subscriptions",
             indexes: [
                 { cols: ["author_id"], using: "btree" },
-                { cols: ["member_id"], using: "btree" },
+                { cols: ["membership_tier_id"], using: "btree" },
                 { cols: ["author_id", "user_id"], using: "btree" },
             ],
         });
@@ -124,7 +126,7 @@ export const memberSubscriptionsTable = {
             .createTable("member_subscriptions")
             .ifNotExists()
             .addColumn("id", "text", (cb) => cb.primaryKey().notNull())
-            .addColumn("member_id", "text", (cb) => cb.unique().notNull())
+            .addColumn("membership_tier_id", "text", (cb) => cb.unique().notNull())
             .addColumn("stripe_subscription_id", "text", (cb) => cb.notNull())
             .addColumn("user_id", "text", (cb) => cb.references("users.id").notNull())
             .addColumn("author_id", "text", (cb) => cb.references("users.id").notNull())
@@ -136,7 +138,7 @@ export const memberSubscriptionsTable = {
             table: "member_subscriptions",
             indexes: [
                 { cols: ["author_id"], using: "btree" },
-                { cols: ["member_id"], using: "btree" },
+                { cols: ["membership_tier_id"], using: "btree" },
                 { cols: ["author_id", "user_id"], using: "btree" },
             ],
         });

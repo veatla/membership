@@ -27,7 +27,6 @@ export const BaseMembershipTiersSchema = {
 };
 
 export const CreateMembershipTierSchema = Type.Object({
-    id: BaseMembershipTiersSchema.id,
     name: BaseMembershipTiersSchema.name,
     price: BaseMembershipTiersSchema.price,
     description: BaseMembershipTiersSchema.description,

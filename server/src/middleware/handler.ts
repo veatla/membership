@@ -4,6 +4,7 @@ import type { Request, Response } from "express";
 import type { Profile, UsersTable } from "../components/user/schema/user.schema";
 import APIError, { throw_err } from "../shared/lib/error";
 import { Bearer } from "../shared/lib/jwt";
+import { errorAsResponse } from "./error-handler";
 
 export const verifySchemaData = <T extends TSchema>(schema: T, options?: SchemaOptions) => {
     return Value.Parse<T>(schema, options);
@@ -43,28 +44,13 @@ export interface RequestHandler<
     }): any | Promise<any>;
 }
 
-export const errorHandler = (res: Response, err: unknown) => {
-    // Verification errors
-    if (err instanceof TypeBoxError) {
-        res.send(err);
-    }
-    // Custom API errors
-    else if (err instanceof APIError) {
-        res.status(err.status).send({ error: err });
-    }
-    // Other errors that doesn't handled
-    else {
-        console.log(err);
-        res.status(500).send({ error: "Internal Server Error!" });
-    }
-};
 const handler = function <
     Body extends TSchema,
     Query extends TSchema,
     Params extends TSchema,
     UserAuthRequired extends boolean = false
 >(
-    cb: RequestHandler<Body, Query, Params, UserAuthRequired extends true ? UsersTable : undefined>,
+    cb: RequestHandler<Body, Query, Params, UserAuthRequired extends true ? UsersTable : undefined | UsersTable>,
     options: {
         /** Body Schema */
         body?: Body;
@@ -121,7 +107,7 @@ const handler = function <
             // Otherwise just return
             else res.send(response);
         } catch (err) {
-            errorHandler(res, err);
+            errorAsResponse(res, err);
         }
     };
 };
