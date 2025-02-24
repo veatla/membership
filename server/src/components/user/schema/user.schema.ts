@@ -11,7 +11,7 @@ export interface UsersTable {
      * GET /user/:username
      * GET /user/:id
      */
-    username: string | null;
+    username: string;
 
     /** Users password. Hashed with crypto */
     password: string;
@@ -36,9 +36,17 @@ export interface UsersTable {
 
     /**
      * Stripe Customer id for payments & subscriptions
+     * It's only will be exists if user trying to subscribe to someone
      */
     stripe_customer_id: string | null;
 
+    /**
+     * Stripe Product id 
+     * It's only if user trying to be an author.
+     */
+    stripe_product_id: string | null;
+
+    
     /**
      * Users state
      * ```
@@ -76,6 +84,7 @@ export const usersTable = {
             .addColumn("email", "text", (cb) => cb.unique().notNull())
             .addColumn("phone", "text", (cb) => cb.unique())
             .addColumn("stripe_customer_id", "text", (cb) => cb.unique())
+            .addColumn("stripe_product_id", "text", (cb) => cb.unique())
             .addColumn("state", "smallint", (cb) => cb.notNull())
             .addColumn("birthday", "integer")
             .addColumn("password", "text", (cb) => cb.notNull())
@@ -121,7 +130,7 @@ export const usersTable = {
         });
     },
     down: async (db: Kysely<Database>) => {
-        await db.schema.dropTable("user_relationships").cascade().execute();
-        await db.schema.dropTable("users").cascade().execute();
+        await db.schema.dropTable("user_relationships").ifExists().cascade().execute();
+        await db.schema.dropTable("users").ifExists().cascade().execute();
     },
 };

@@ -29,13 +29,17 @@ export interface PostsTable {
     ts: number;
 }
 
-export interface PostAccesses {
-    id: number;
+export interface PostAccessesTable {
+    id: string;
 
     /**
      * User id - that have access to this post
      */
-    user_id: string;
+    user_id: string | null;
+
+    type: "PRIVATE" | "PUBLIC";
+
+    subscription: string | null;
 
     post_id: string;
 }
@@ -64,12 +68,21 @@ export const postsTable = {
                 { cols: ["author", "ts"], using: "btree" },
             ],
         });
+    },
 
+    down: async (db: Kysely<Database>) => {
+        await db.schema.dropTable("posts").ifExists().cascade().execute();
+    },
+};
+export const postAccessesTable = {
+    up: async (db: Kysely<Database>) => {
         await db.schema
             .createTable("post_accesses")
             .ifNotExists()
             .addColumn("id", "text", (cb) => cb.primaryKey().notNull())
             .addColumn("user_id", "text", (cb) => cb.references("users.id"))
+            .addColumn("type", "text")
+            .addColumn("subscription", "text", (cb) => cb.references("member_subscriptions.id"))
             .addColumn("post_id", "text", (cb) => cb.references("posts.id"))
             .execute();
 
@@ -80,12 +93,13 @@ export const postsTable = {
                 // For selecting post by user access;
                 {
                     using: "btree",
-                    cols: ["post_id", "user_id"],
+                    cols: ["post_id", "user_id", "subscription", "type"],
                 },
             ],
         });
     },
+
     down: async (db: Kysely<Database>) => {
-        await db.schema.dropTable("posts").cascade().execute();
+        await db.schema.dropTable("post_accesses").ifExists().cascade().execute();
     },
 };

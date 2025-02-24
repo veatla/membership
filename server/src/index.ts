@@ -7,9 +7,17 @@ import ENV from "./environment";
 import attachments_router from "./components/attachment/attachment.controller";
 import posts_router from "./components/post/post.controller";
 import users_router from "./components/user/user.controller";
-import APIError, { throw_err } from "./shared/lib/error";
-import { TypeBoxError } from "@sinclair/typebox";
-
+import memberships_router from "./components/membership/membership.controller";
+import { errorHandler } from "./middleware/error-handler";
+declare global {
+    interface BigInt {
+        /** Convert to BigInt to string form in JSON.stringify */
+        toJSON: () => string;
+    }
+}
+BigInt.prototype.toJSON = function () {
+    return this.toString();
+};
 const app = express();
 
 app.use(helmet());
@@ -21,17 +29,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", attachments_router);
 app.use("/api", posts_router);
 app.use("/api", users_router);
+app.use("/api", memberships_router);
 // routes
 
 // app.use('/*', (req, res) => throw_err("Not found!", 404));
-
-const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
-    if (err instanceof TypeBoxError) {
-        res.send(err);
-    } else if (err instanceof APIError) {
-        res.status(err.status).send({ error: err });
-    } else res.send({ error: err });
-};
 
 app.use(errorHandler);
 

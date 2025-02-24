@@ -17,7 +17,7 @@ const __filename = fileURLToPath(import.meta.url);
  *     files: Array<Express.Multer.File>;
  *     user: string
  * }} files
- * @returns {import("../types/worker").WorkerUploadResponse}
+ * @returns {Promise<import("../types/worker").WorkerUploadResponse>}
  */
 const upload_file = async ({ files, user }) => {
     const error = [];
@@ -91,4 +91,7 @@ if (!isMainThread) {
             // emit event to parent thread
             parentPort.postMessage(res);
         })
+        .catch((res) => {
+            parentPort.postMessage(res);
+        });
 }

@@ -3,11 +3,13 @@ import { customAlphabet } from "nanoid";
 const prefix = {
     USER: "U",
     POST: "P",
+    POST_ACCESSES: "PA",
     SUBSCRIPTION: "S",
     PAYMENT: "PM",
     ATTACHMENT: "F",
     ATTACHMENT_ITEM: "FI",
     ATTACHMENT_REFERENCE: "FR",
+    MEMBERSHIP_TIER: "MT",
 };
 
 const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";

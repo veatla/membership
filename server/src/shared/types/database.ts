@@ -1,5 +1,6 @@
 import type { AttachmentsReferenceTable, AttachmentsTable } from "../../components/attachment/schema/attachment.schema";
-import type { PostAccesses, PostsTable } from "../../components/post/schema/post.schema";
+import type { PostAccessesTable, PostsTable } from "../../components/post/schema/post.schema";
+import type { MembershipTierTable, MemberSubscriptionsTable } from "../../components/membership/schema/membership.schema";
 import type { UsersRelationships, UsersTable } from "../../components/user/schema/user.schema";
 
 export interface Database {
@@ -10,5 +11,8 @@ export interface Database {
     attachments_reference: AttachmentsReferenceTable;
 
     posts: PostsTable;
-    post_accesses: PostAccesses;
+    post_accesses: PostAccessesTable;
+
+    membership_tiers: MembershipTierTable;
+    member_subscriptions: MemberSubscriptionsTable;
 }

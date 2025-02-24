@@ -53,7 +53,7 @@ export const attachmentTable = {
             .addColumn("user_id", "text", (cb) =>
                 cb.references("users.id").notNull()
             )
-            .addColumn("path", "text", (cb) => cb.notNull())
+            .addColumn("path", "text", (cb) => cb.notNull().unique())
             .addColumn("mimetype", "text", (cb) => cb.notNull())
             .addColumn("filename", "text")
             .execute();
@@ -101,7 +101,7 @@ export const attachmentTable = {
         });
     },
     down: async (db: Kysely<Database>) => {
-        await db.schema.dropTable("attachments").cascade().execute();
-        await db.schema.dropTable("attachments_reference").cascade().execute();
+        await db.schema.dropTable("attachments").ifExists().cascade().execute();
+        await db.schema.dropTable("attachments_reference").ifExists().cascade().execute();
     },
 };
