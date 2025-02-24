@@ -1,7 +1,7 @@
 import { Router } from "express";
 import handler, { verifySchemaData } from "../../middleware/handler";
 import multerConfig from "../../config/multer";
-import { CreateMembershipTierSchema } from "./dto/membership.dto";
+import { CreateMembershipTierSchema, GetMembershipByIdSchema } from "./dto/membership.dto";
 import { createMembershipTiers } from "./lib/create-membership-tier";
 import { Bearer } from "../../shared/lib/jwt";
 import { getUsersMembershipSubscriptions } from "./lib/get-users-membership-subscriptions";
@@ -9,6 +9,7 @@ import { errorAsResponse } from "../../middleware/error-handler";
 import { throw_err } from "../../shared/lib/error";
 import { getAuthorMembershipTiers } from "./lib/get-author-membership-tiers";
 import { GetUserByIdSchema } from "../user/dto/user.dto";
+import { subscribeToAuthor } from "./lib/subscribe-to-author";
 
 const memberships_router = Router();
 const route_prefix = (path: string) => "/membership" + path;
@@ -41,6 +42,13 @@ memberships_router.get(
     route_prefix("/id/:id"),
     handler(({ user, params }) => getAuthorMembershipTiers(params.id, user?.id), {
         params: GetUserByIdSchema,
+    })
+);
+memberships_router.post(
+    route_prefix("/id/:id"),
+    handler(({ user, params }) => subscribeToAuthor(params.id, user), {
+        params: GetMembershipByIdSchema,
+        authRequired: true,
     })
 );
 

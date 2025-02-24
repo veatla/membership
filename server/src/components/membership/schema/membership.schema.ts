@@ -110,7 +110,7 @@ export const membershipTierTable = {
             indexes: [
                 { cols: ["author_id"], using: "btree" },
                 { cols: ["membership_tier_id"], using: "btree" },
-                { cols: ["author_id", "user_id"], using: "btree" },
+                { cols: ["author_id", "user_id"], using: "btree", unique: true },
             ],
         });
     },

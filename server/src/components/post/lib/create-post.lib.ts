@@ -59,7 +59,32 @@ export const create_post = async (body: CreatePost, user_id: string, inputFiles?
 
             files.push(...result);
         }
-        if (body.type === PostType.PUBLIC || !body.available) {
+
+        if (body.memberships?.length || body.users?.lastIndexOf) {
+            const prepared: Array<PostAccessesTable> = [];
+            body.memberships?.split(/\s*\,\s*/).forEach((id) => {
+                // If type subscription then this post available to only this members
+                const data = <PostAccessesTable>{
+                    id: uid("POST_ACCESSES"),
+                    post_id: post.id,
+                    type: "PRIVATE",
+                    subscription: id,
+                };
+                prepared.push(data);
+            });
+
+            body.users?.split(/\s*\,\s*/).forEach((id) => {
+                // otherwise then this post available to only this member
+                const data = <PostAccessesTable>{
+                    id: uid("POST_ACCESSES"),
+                    post_id: post.id,
+                    type: "PRIVATE",
+                    user_id: id,
+                };
+                prepared.push(data);
+            });
+            if (prepared.length) await trx.insertInto("post_accesses").values(prepared).execute();
+        } else {
             const post_access_id = uid("POST_ACCESSES");
             await trx
                 .insertInto("post_accesses")
@@ -69,21 +94,6 @@ export const create_post = async (body: CreatePost, user_id: string, inputFiles?
                     type: "PUBLIC",
                 })
                 .execute();
-        } else {
-            const prepared = body.available.map((v) => {
-                const data = <PostAccessesTable>{
-                    id: uid("POST_ACCESSES"),
-                    post_id: post.id,
-                    type: "PRIVATE",
-                };
-                // If type subscription then this post available to only this members
-                if (v.type === "SUBSCRIPTION") data.subscription = v.id;
-                // otherwise then this post available to only this member
-                else data.user_id = v.id;
-                return data;
-            });
-
-            await trx.insertInto("post_accesses").values(prepared).execute();
         }
 
         return {

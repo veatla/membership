@@ -4,7 +4,6 @@ import APIError from "../shared/lib/error";
 import { MulterError } from "multer";
 
 export const errorAsResponse = (res: Response, err: unknown) => {
-    console.log(res);
     // Verification errors
     if (err instanceof TypeBoxError) {
         res.send(err);

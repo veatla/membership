@@ -19,28 +19,22 @@ export const BasePostSchema = {
         maxLength: 1000,
     }),
 
-    available: Type.Union([
-        Type.Object({
-            type: Type.Literal("SUBSCRIPTION"),
-            id: Type.String({
-                title: "Subscription id",
-                maxLength: 1000,
-            }),
-        }),
-        Type.Object({
-            type: Type.Literal("USER"),
-            id: Type.String({
-                title: "User id",
-                maxLength: 1000,
-            }),
-        }),
-    ]),
+    subscription_id: Type.String({
+        title: "Subscription ids",
+        maxLength: 1000,
+    }),
+
+    user_id: Type.String({
+        title: "User id",
+        maxLength: 1000,
+    }),
 };
 
 export const CreatePostSchema = Type.Object({
     content: BasePostSchema.content,
     files: Type.Optional(Type.Array(Type.String())),
     type: Type.Optional(BasePostSchema.type),
-    available: Type.Optional(Type.Array(BasePostSchema.available)),
+    memberships: Type.Optional(BasePostSchema.subscription_id),
+    users: Type.Optional(BasePostSchema.user_id),
 });
 export type CreatePost = Static<typeof CreatePostSchema>;

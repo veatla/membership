@@ -82,7 +82,7 @@ export const postAccessesTable = {
             .addColumn("id", "text", (cb) => cb.primaryKey().notNull())
             .addColumn("user_id", "text", (cb) => cb.references("users.id"))
             .addColumn("type", "text")
-            .addColumn("subscription", "text", (cb) => cb.references("member_subscriptions.id"))
+            .addColumn("subscription", "text", (cb) => cb.references("membership_tiers.id"))
             .addColumn("post_id", "text", (cb) => cb.references("posts.id"))
             .execute();
 

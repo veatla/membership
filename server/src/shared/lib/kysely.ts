@@ -8,23 +8,25 @@ export const createIndex = async <Key extends keyof Database>(params: {
     indexes: Array<{
         cols: Array<keyof Database[Key]>;
         using: IndexType;
+        unique?: boolean;
     }>;
 }) => {
     const { db, indexes, table } = params;
-    for await (const { cols, using } of indexes) {
-        await db.schema
+    for await (const { cols, using, unique = false } of indexes) {
+        const request = db.schema
             .createIndex(`${table}_${cols.join("_")}_index`)
             .ifNotExists()
             .on(table)
             .columns(cols.map((v) => String(v)))
-            .using(using)
-            .execute();
+            .using(using);
+        if (unique) await request.unique().execute();
+        else await request.execute();
     }
 };
 
 export const init_postgres_fn = async () => {
     await pool.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto;`);
-    
+
     // Function to check bitwise
     await pool.query(
         `CREATE OR REPLACE FUNCTION CHECK_RIGHTS(flags int, bit_no int) RETURNS boolean as $$

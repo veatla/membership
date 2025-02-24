@@ -34,3 +34,7 @@ export const CreateMembershipTierSchema = Type.Object({
 });
 
 export type CreateMembership = Static<typeof CreateMembershipTierSchema>;
+
+export const GetMembershipByIdSchema = Type.Object({
+    id: BaseMembershipTiersSchema.id,
+})
