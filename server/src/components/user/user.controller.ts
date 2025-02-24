@@ -1,7 +1,9 @@
 import { Router } from "express";
 import handler from "../../middleware/handler";
-import { createUser, getUser, loginUser } from "./user.service";
 import { CreateUserSchema, GetUserByIdSchema, LoginSchema } from "./dto/user.dto";
+import { createUser } from "./lib/create-user";
+import { loginUser } from "./lib/login-user";
+import { getUser } from "./lib/get-user";
 
 const users_router = Router();
 const route_prefix = (path: string) => "/user" + path;

@@ -38,8 +38,8 @@ TODO:
 -   Backend: Format Files. ex.: Create low quality thumbnails for images & videos = Backlog
 -   Backend: Enable upload Executable apps. Check for viruses - Backlog...Idk I need this or not.
 -   Backend: View posts = Ok
--   Backend: Access Management = Todo
 -   Backend: Create custom subscriptions plans = Todo
+-   Backend: Access Management = Todo
 -   Backend: Enable to blocking users = Todo
 -   Backend: Private users = Todo
 -   Backend: Closed posts only for subscribers = Todo

@@ -43,6 +43,21 @@ export interface RequestHandler<
     }): any | Promise<any>;
 }
 
+export const errorHandler = (res: Response, err: unknown) => {
+    // Verification errors
+    if (err instanceof TypeBoxError) {
+        res.send(err);
+    }
+    // Custom API errors
+    else if (err instanceof APIError) {
+        res.status(err.status).send({ error: err });
+    }
+    // Other errors that doesn't handled
+    else {
+        console.log(err);
+        res.status(500).send({ error: "Internal Server Error!" });
+    }
+};
 const handler = function <
     Body extends TSchema,
     Query extends TSchema,
@@ -106,19 +121,7 @@ const handler = function <
             // Otherwise just return
             else res.send(response);
         } catch (err) {
-            // Verification errors
-            if (err instanceof TypeBoxError) {
-                res.send(err);
-            }
-            // Custom API errors
-            else if (err instanceof APIError) {
-                res.status(err.status).send({ error: err });
-            }
-            // Other errors that doesn't handled
-            else {
-                console.log(err);
-                res.status(500).send({ error: "Internal Server Error!" });
-            }
+            errorHandler(res, err);
         }
     };
 };
