@@ -5,8 +5,8 @@ import multerConfig from "../../config/multer";
 import { throw_err } from "../../shared/lib/error";
 import { Bearer } from "../../shared/lib/jwt";
 import { GetUserByIdSchema } from "../user/dto/user.dto";
-import { create_post } from "./lib/create-post.lib";
-import { getUserPosts } from "./lib/get-user-post";
+import { create_post } from "./services/create-post.service";
+import { getUserPosts } from "./services/get-user-post.service";
 
 const posts_router = Router();
 const route_prefix = (path: string) => "/post" + path;

@@ -3,7 +3,7 @@ import stripe from "../../../config/stripe";
 import { throw_err } from "../../../shared/lib/error";
 import { $time } from "../../../shared/lib/get_time";
 import uid from "../../../shared/lib/uid";
-import { getStripeCustomer } from "../../user/lib/create-stripe-customer";
+import { getStripeCustomer } from "../../user/services/create-stripe-customer.service";
 import type { Profile } from "../../user/schema/user.schema";
 
 export const subscribeToAuthor = async (membership_id: string, profile: Profile) => {

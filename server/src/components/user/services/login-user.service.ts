@@ -1,6 +1,6 @@
 import { sql } from "kysely";
 import bcrypt from "bcrypt";
-import type { Login } from "./../dto/user.dto";
+import type { Login } from "../dto/user.dto";
 import { throw_err } from "../../../shared/lib/error";
 import db from "../../../config/db";
 import { Bearer } from "../../../shared/lib/jwt";

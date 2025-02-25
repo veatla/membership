@@ -4,7 +4,7 @@ import { throw_err } from "../../../shared/lib/error";
 import { Bearer } from "../../../shared/lib/jwt";
 import uid from "../../../shared/lib/uid";
 import bcrypt from "bcrypt";
-import type { CreateUser } from "./../dto/user.dto";
+import type { CreateUser } from "../dto/user.dto";
 import { customAlphabet } from "nanoid";
 
 const salt = 12;

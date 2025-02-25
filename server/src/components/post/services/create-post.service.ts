@@ -2,11 +2,11 @@ import { sql } from "kysely";
 import db from "../../../config/db";
 import { $time } from "../../../shared/lib/get_time";
 import uid from "../../../shared/lib/uid";
-import { PostType, type CreatePost } from "../dto/post.dto";
+import { type CreatePost } from "../dto/post.dto";
 import { throw_err } from "../../../shared/lib/error";
 import { create_upload_file_worker } from "../../attachment/workers/upload";
 import { STORAGE_URL_PREFIX } from "../../../constants/storage";
-import { getUserProductId } from "../../user/lib/get-user-product-id";
+import { getUserProductId } from "../../user/services/get-user-product-id.service";
 import type { PostAccessesTable } from "../schema/post.schema";
 export const create_post = async (body: CreatePost, user_id: string, inputFiles?: Array<Express.Multer.File>) => {
     const files: Array<string> = [];

@@ -2,14 +2,14 @@ import { Router } from "express";
 import handler, { verifySchemaData } from "../../middleware/handler";
 import multerConfig from "../../config/multer";
 import { CreateMembershipTierSchema, GetMembershipByIdSchema } from "./dto/membership.dto";
-import { createMembershipTiers } from "./lib/create-membership-tier";
+import { createMembershipTiers } from "./services/create-membership-tier.service";
 import { Bearer } from "../../shared/lib/jwt";
-import { getUsersMembershipSubscriptions } from "./lib/get-users-membership-subscriptions";
+import { getUsersMembershipSubscriptions } from "./services/get-users-membership-subscriptions.service";
 import { errorAsResponse } from "../../middleware/error-handler";
 import { throw_err } from "../../shared/lib/error";
-import { getAuthorMembershipTiers } from "./lib/get-author-membership-tiers";
+import { getAuthorMembershipTiers } from "./services/get-author-membership-tiers.service";
 import { GetUserByIdSchema } from "../user/dto/user.dto";
-import { subscribeToAuthor } from "./lib/subscribe-to-author";
+import { subscribeToAuthor } from "./services/subscribe-to-author.service";
 
 const memberships_router = Router();
 const route_prefix = (path: string) => "/membership" + path;

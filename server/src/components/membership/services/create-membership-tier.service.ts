@@ -4,7 +4,7 @@ import { throw_err } from "../../../shared/lib/error";
 import { $time } from "../../../shared/lib/get_time";
 import uid from "../../../shared/lib/uid";
 import { create_upload_file_worker } from "../../attachment/workers/upload";
-import { getUserProductId } from "../../user/lib/get-user-product-id";
+import { getUserProductId } from "../../user/services/get-user-product-id.service";
 import type { Profile } from "../../user/schema/user.schema";
 import type { CreateMembership } from "../dto/membership.dto";
 
