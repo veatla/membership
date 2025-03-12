@@ -1,1 +1,6 @@
-{}
+{
+    "scripts": {
+        "build": "paraglide-js compile --project ./project.inlang --outdir ./src\\paraglide",
+        "machine-translate": "inlang machine translate --project project.inlang"
+    }
+}
