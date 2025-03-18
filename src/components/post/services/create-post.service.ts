@@ -2,12 +2,13 @@ import { sql } from "kysely";
 import db from "../../../config/db";
 import { $time } from "../../../shared/lib/get_time";
 import uid from "../../../shared/lib/uid";
-import { type CreatePost } from "../dto/post.dto";
+import { PostType, type CreatePost } from "../dto/post.dto";
 import { throw_err } from "../../../shared/lib/error";
 import { create_upload_file_worker } from "../../attachment/workers/upload";
 import { STORAGE_URL_PREFIX } from "../../../constants/storage";
 import { getUserProductId } from "../../user/services/get-user-product-id.service";
 import type { PostAccessesTable } from "../schema/post.schema";
+
 export const create_post = async (body: CreatePost, user_id: string, inputFiles?: Array<Express.Multer.File>) => {
     const files: Array<string> = [];
 
@@ -60,40 +61,33 @@ export const create_post = async (body: CreatePost, user_id: string, inputFiles?
             files.push(...result);
         }
 
-        if (body.memberships?.length || body.users?.lastIndexOf) {
-            const prepared: Array<PostAccessesTable> = [];
-            body.memberships?.split(/\s*\,\s*/).forEach((id) => {
-                // If type subscription then this post available to only this members
-                const data = <PostAccessesTable>{
-                    id: uid("POST_ACCESSES"),
-                    post_id: post.id,
-                    type: "PRIVATE",
-                    subscription: id,
-                };
-                prepared.push(data);
-            });
-
-            body.users?.split(/\s*\,\s*/).forEach((id) => {
-                // otherwise then this post available to only this member
-                const data = <PostAccessesTable>{
-                    id: uid("POST_ACCESSES"),
-                    post_id: post.id,
-                    type: "PRIVATE",
-                    user_id: id,
-                };
-                prepared.push(data);
-            });
-            if (prepared.length) await trx.insertInto("post_accesses").values(prepared).execute();
-        } else {
-            const post_access_id = uid("POST_ACCESSES");
-            await trx
-                .insertInto("post_accesses")
-                .values({
-                    id: post_access_id,
-                    post_id: post.id,
-                    type: "PUBLIC",
-                })
-                .execute();
+        switch (body.access.type) {
+            case PostType.SELECTED_TIERS:
+                if (body.access.memberships?.length || body.users?.lastIndexOf) {
+                    const prepared: Array<PostAccessesTable> = [];
+                    body.access.memberships?.split(/\s*\,\s*/).forEach((id) => {
+                        const data = <PostAccessesTable>{
+                            id: uid("POST_ACCESSES"),
+                            post_id: post.id,
+                            type: PostType.SELECTED_TIERS,
+                            subscription: id,
+                        };
+                        prepared.push(data);
+                    });
+                    if (prepared.length) await trx.insertInto("post_accesses").values(prepared).execute();
+                }
+                break;
+            default:
+                const post_access_id = uid("POST_ACCESSES");
+                await trx
+                    .insertInto("post_accesses")
+                    .values({
+                        id: post_access_id,
+                        post_id: post.id,
+                        type: PostType.PUBLIC,
+                    })
+                    .execute();
+                break;
         }
 
         return {

@@ -2,6 +2,7 @@ import type { Kysely } from "kysely";
 import type { Database } from "../../../shared/types/database";
 import { createIndex } from "../../../shared/lib/kysely";
 import type { UsersTable } from "../../user/schema/user.schema";
+import type { PostType } from "../dto/post.dto";
 
 export interface PostsTable {
     id: string;
@@ -37,7 +38,7 @@ export interface PostAccessesTable {
      */
     user_id: string | null;
 
-    type: "PRIVATE" | "PUBLIC";
+    type: PostType;
 
     subscription: string | null;
 
