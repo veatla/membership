@@ -1,13 +1,14 @@
-import { sql } from "kysely";
 import db from "../../../config/db";
-import { $time } from "../../../shared/lib/get_time";
 import uid from "../../../shared/lib/uid";
-import { PostType, type CreatePost } from "../dto/post.dto";
+
+import { sql } from "kysely";
+import { $time } from "../../../shared/lib/get_time";
+import { type CreatePost } from "../dto/post.dto";
 import { throw_err } from "../../../shared/lib/error";
 import { create_upload_file_worker } from "../../attachment/workers/upload";
 import { STORAGE_URL_PREFIX } from "../../../constants/storage";
 import { getUserProductId } from "../../user/services/get-user-product-id.service";
-import type { PostAccessesTable } from "../schema/post.schema";
+import { create_post_access } from "./create_post_access.service";
 
 export const create_post = async (body: CreatePost, user_id: string, inputFiles?: Array<Express.Multer.File>) => {
     const files: Array<string> = [];
@@ -61,39 +62,14 @@ export const create_post = async (body: CreatePost, user_id: string, inputFiles?
             files.push(...result);
         }
 
-        switch (body.access.type) {
-            case PostType.SELECTED_TIERS:
-                if (body.access.memberships?.length || body.users?.lastIndexOf) {
-                    const prepared: Array<PostAccessesTable> = [];
-                    body.access.memberships?.split(/\s*\,\s*/).forEach((id) => {
-                        const data = <PostAccessesTable>{
-                            id: uid("POST_ACCESSES"),
-                            post_id: post.id,
-                            type: PostType.SELECTED_TIERS,
-                            subscription: id,
-                        };
-                        prepared.push(data);
-                    });
-                    if (prepared.length) await trx.insertInto("post_accesses").values(prepared).execute();
-                }
-                break;
-            default:
-                const post_access_id = uid("POST_ACCESSES");
-                await trx
-                    .insertInto("post_accesses")
-                    .values({
-                        id: post_access_id,
-                        post_id: post.id,
-                        type: PostType.PUBLIC,
-                    })
-                    .execute();
-                break;
-        }
-
-        return {
-            ...post,
-            files: files,
+        const data = {
+            ...body.access,
+            post_id: post.id,
         };
+
+        await create_post_access(data, trx);
+
+        return { ...post, files: files };
     });
 
     return data;

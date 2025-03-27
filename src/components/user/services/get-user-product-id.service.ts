@@ -14,19 +14,14 @@ export const getUserProductId = async (profile: string | Profile, trx: Transacti
 
     if (user.stripe_product_id) return user.stripe_product_id;
 
+    if (!user.display_name) throw_err("User needs to set display name", 500);
+
     const product = await stripe.products.create({
-        name: user.username!,
-        description: user.display_name ?? undefined,
+        name: user.display_name,
         active: true,
     });
 
-    await trx
-        .updateTable("users")
-        .set({
-            stripe_product_id: product.id,
-        })
-        .where("id", "=", user.id)
-        .execute();
+    await trx.updateTable("users").set("stripe_product_id", product.id).where("id", "=", user.id).execute();
 
     return product.id;
 };

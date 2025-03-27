@@ -33,11 +33,6 @@ export interface PostsTable {
 export interface PostAccessesTable {
     id: string;
 
-    /**
-     * User id - that have access to this post
-     */
-    user_id: string | null;
-
     type: PostType;
 
     subscription: string | null;
@@ -81,23 +76,11 @@ export const postAccessesTable = {
             .createTable("post_accesses")
             .ifNotExists()
             .addColumn("id", "text", (cb) => cb.primaryKey().notNull())
-            .addColumn("user_id", "text", (cb) => cb.references("users.id"))
             .addColumn("type", "text")
             .addColumn("subscription", "text", (cb) => cb.references("membership_tiers.id"))
             .addColumn("post_id", "text", (cb) => cb.references("posts.id"))
+            .addUniqueConstraint("post_id_subscription_type_unique", ["post_id", "subscription", "type"])
             .execute();
-
-        await createIndex({
-            db,
-            table: "post_accesses",
-            indexes: [
-                // For selecting post by user access;
-                {
-                    using: "btree",
-                    cols: ["post_id", "user_id", "subscription", "type"],
-                },
-            ],
-        });
     },
 
     down: async (db: Kysely<Database>) => {

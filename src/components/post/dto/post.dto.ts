@@ -54,7 +54,7 @@ export const BasePostSchema = {
 const createPostTypes = Type.Union([
     Type.Object({
         type: Type.Literal(PostType.SELECTED_TIERS),
-        memberships: Type.Optional(BasePostSchema.subscription_id),
+        memberships: BasePostSchema.subscription_id,
         selling_price: Type.Optional(BasePostSchema.selling_price),
         early_access: BasePostSchema.early_access,
         preview: BasePostSchema.preview,
@@ -90,7 +90,6 @@ export const CreatePostSchema = Type.Object({
     content: BasePostSchema.content,
     files: Type.Optional(Type.Array(Type.String())),
     type: BasePostSchema.type,
-    users: Type.Optional(BasePostSchema.user_id),
     keywords: Type.Array(Type.String()),
     comments: Type.Boolean({ default: true }),
     notification: Type.Boolean({ default: true }),
@@ -99,3 +98,4 @@ export const CreatePostSchema = Type.Object({
 });
 
 export type CreatePost = Static<typeof CreatePostSchema>;
+export type PostAccess = Static<typeof createPostTypes>;

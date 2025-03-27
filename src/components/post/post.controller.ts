@@ -9,6 +9,7 @@ import { create_post } from "./services/create-post.service";
 import { getUserPosts } from "./services/get-user-post.service";
 
 const posts_router = Router();
+
 const route_prefix = (path: string) => "/post" + path;
 
 posts_router.post(route_prefix("/create"), multerConfig.array("files", 5), async (req, res, next) => {
